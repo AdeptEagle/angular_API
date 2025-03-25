@@ -1,0 +1,1 @@
+way main imong repo maong na default sa akoa mb mb mb plus wa pani nahuman 
