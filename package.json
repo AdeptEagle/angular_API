@@ -1,0 +1,32 @@
+{
+  "name": "angular",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdeptEagle/angular_API.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AdeptEagle/angular_API/issues"
+  },
+  "homepage": "https://github.com/AdeptEagle/angular_API#readme",
+  "description": "",
+  "dependencies": {
+    "@angular/cli": "^17.3.14",
+    "@angular/common": "^19.2.3",
+    "@angular/compiler": "^19.2.3",
+    "@angular/core": "^19.2.3",
+    "@angular/forms": "^19.2.3",
+    "@angular/http": "^7.2.16",
+    "@angular/platform-browser": "^19.2.3",
+    "@angular/platform-browser-dynamic": "^19.2.3",
+    "@angular/router": "^19.2.3",
+    "rxjs": "^7.8.2"
+  }
+}
