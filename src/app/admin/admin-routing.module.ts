@@ -1,25 +1,26 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { SubNavComponent } from './subnav.component';
-import { LayoutComponent } from './layout.component';
-import { OverviewComponent } from './overview.component';
+import { HomeComponent } from './home';
+import { AuthGuard } from './_helpers';
+import { Role } from './_models';
 
-const accountsModule = () => import('./accounts/accounts.module').then(x => x.AccountsModule);
+const accountModule = () => import('./account/account.module').then(x => x.AccountModule);
+const adminModule = () => import('./admin/admin.module').then(x => x.AdminModule);
+const profileModule = () => import('./profile/profile.module').then(x => x.ProfileModule);
 
 const routes: Routes = [
-    { path: '', component: SubNavComponent, outlet: 'subnav' },
-    {
-        path: '', component: LayoutComponent,
-        children: [
-            { path: '', component: OverviewComponent },
-            { path: 'accounts', loadChildren: accountsModule }
-        ]
-    }
+    { path: '', component: HomeComponent, canActivate: [AuthGuard] },
+    { path: 'account', loadChildren: accountModule },
+    { path: 'profile', loadChildren: profileModule, canActivate: [AuthGuard] },
+    { path: 'admin', loadChildren: adminModule, canActivate: [AuthGuard], data: { roles: [Role.Admin] } },
+
+    // otherwise redirect to home
+    { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule] 
+    imports: [RouterModule.forRoot(routes)],
+    exports: [RouterModule]
 })
 export class AdminRoutingModule {}

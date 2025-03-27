@@ -36,7 +36,7 @@ export class ResetPasswordComponent implements OnInit {
                 confirmPassword: ['', Validators.required],
             },
             {
-                validators: MustMatch('password', 'confirmPassword') 
+                validator: MustMatch('password', 'confirmPassword') // Fixed property name
             }
         );
 
@@ -73,7 +73,7 @@ export class ResetPasswordComponent implements OnInit {
             .pipe(first())
             .subscribe({
                 next: () => {
-                    this.alertService.success('Password reset successful, you can now login', { keepAfterRouteChange: true }); // ✅ Fixed syntax
+                    this.alertService.success('Password reset successful, you can now login', { keepAfterRouteChange: true });
                     this.router.navigate(['../login'], { relativeTo: this.route });
                 },
                 error: (error) => {

@@ -1,18 +1,17 @@
 import { Component } from '@angular/core';
 import { AccountService } from './_services';
-import { Account,Role } from './_module';
+import { Account, Role } from './_models';
 
-@Component({ selector: 'app', templateUrlL './app.component.html'})
-
+@Component({ selector: 'app', templateUrl: './app.component.html' })
 export class AppComponent {
     Role = Role;
-    account = Account;
+    account: Account;
     
-    constructor(private accountService: AccountService){
-        this.accountService.account.subscribe( x => this.account = x || null);
-
+    constructor(private accountService: AccountService) {
+        this.accountService.account.subscribe(x => this.account = x);
     }
-    logout(){
+
+    logout() {
         this.accountService.logout();
     }
 }
