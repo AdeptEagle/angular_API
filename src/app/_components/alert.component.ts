@@ -1,28 +1,32 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Router, NavigationStart } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-import { Alert, AlertType } from '@app/_models';
-import { AlertService } from '@app/_services';
+import { Alert, AlertType } from '../_models';
+import { AlertService } from '../_services';
 
 @Component({
-    selector: 'alert', templateUrl: 'alert.component.html',
-    standalone: false
+    selector: 'alert',
+    templateUrl: 'alert.component.html',
+    standalone: true,
+    imports: [CommonModule, FormsModule]
 })
 export class AlertComponent implements OnInit, OnDestroy {
     @Input() id = 'default-alert';
     @Input() fade = true;
 
     alerts: Alert[] = [];
-    alertSubscription: Subscription;
-    routeSubscription: Subscription;
+    alertSubscription!: Subscription;
+    routeSubscription!: Subscription;
 
     constructor(private router: Router, private alertService: AlertService) { }
 
     ngOnInit() {
         // subscribe to new alert notifications
         this.alertSubscription = this.alertService.onAlert(this.id)
-            .subscribe(alert => {
+            .subscribe((alert: Alert) => {
                 // clear alerts when an empty alert is received
                 if (!alert.message) {
                     // filter out alerts without 'keepAfterRouteChange' flag
@@ -75,7 +79,7 @@ export class AlertComponent implements OnInit, OnDestroy {
     }
 
     cssClasses(alert: Alert) {
-        if (!alert) return;
+        if (!alert || !alert.type) return '';
 
         const classes = ['alert', 'alert-dismissible'];
 

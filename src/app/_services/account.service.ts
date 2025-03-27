@@ -4,8 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, finalize } from 'rxjs/operators';
 
-import { environment } from '@environments/environment';
-import { Account } from '@app/_models';
+// import { environment } from '@environments/environment';
+import { environment } from '../environments/environment';
+import { Account } from '../_models';
 
 const baseUrl = `${environment.apiUrl}/accounts`;
 
@@ -13,7 +14,7 @@ const baseUrl = `${environment.apiUrl}/accounts`;
 export class AccountService {
     private accountSubject: BehaviorSubject<Account>;
     public account: Observable<Account>;
-    private refreshTokenTimeout;
+    private refrehsTokenTimeout;
 
     constructor(private router: Router, private http: HttpClient) {
         this.accountSubject = new BehaviorSubject<Account>(null);
