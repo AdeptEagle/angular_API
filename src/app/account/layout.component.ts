@@ -1,10 +1,15 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
+// import { AccountService } from '@app/_services';
+import { AccountService } from '../_services';
 
-import { AccountService } from '@app/_services';
-
-@Component ({ templateUrl: 'layout.component.html'})
+@Component({
+    templateUrl: 'layout.component.html',
+    standalone: true,
+    imports: [CommonModule, RouterModule]
+})
 export class LayoutComponent {
     constructor (
         private router: Router,

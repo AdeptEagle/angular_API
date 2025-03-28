@@ -1,16 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { first } from 'rxjs/operators';
+import { CommonModule } from '@angular/common';
 
-import { AccountService, AlertService } from '@app/_services';
-import { MustMatch } from '@app/_helpers';
+// import { AccountService, AlertService } from '@app/_services';
+import { AccountService, AlertService } from '../../_services';
+// import { MustMatch } from '@app/_helpers';
+import { mustMatch } from '../../_helpers';
 
-@Component({ templateUrl: 'add-edit.component.html' })
+@Component({ 
+    templateUrl: 'add-edit.component.html',
+    standalone: true,
+    imports: [CommonModule, ReactiveFormsModule]
+})
 export class AddEditComponent implements OnInit {
-    form: FormGroup;
-    id: string;
-    isAddMode: boolean;
+    form!: FormGroup;
+    id: string | null = null;
+    isAddMode: boolean = true;
     loading = false;
     submitted = false;
 
@@ -35,10 +42,10 @@ export class AddEditComponent implements OnInit {
             password: ['', [Validators.minLength(6), this.isAddMode ? Validators.required : Validators.nullValidator]],
             confirmPassword: ['']
         }, {
-            validator: MustMatch('password', 'confirmPassword')
+            validator: mustMatch('password', 'confirmPassword')
         });
 
-        if (!this.isAddMode) {
+        if (!this.isAddMode && this.id) {
             this.accountService.getById(this.id)
                 .pipe(first())
                 .subscribe(x => this.form.patchValue(x));
@@ -62,7 +69,7 @@ export class AddEditComponent implements OnInit {
         this.loading = true;
         if (this.isAddMode) {
             this.createAccount();
-        } else {
+        } else if (this.id) {
             this.updateAccount();
         }
     }
@@ -83,6 +90,8 @@ export class AddEditComponent implements OnInit {
     }
 
     private updateAccount() {
+        if (!this.id) return;
+        
         this.accountService.update(this.id, this.form.value)
             .pipe(first())
             .subscribe({

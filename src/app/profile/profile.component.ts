@@ -1,32 +1,26 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { first } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 
-// import { AccountService, AlertService } from '@app/_services';
 import { AccountService, AlertService } from '../_services';
-// import { MustMatch } from '@app/_helpers';
 import { mustMatch } from '../_helpers';
 
-@Component({
-    templateUrl: 'register.component.html',
+@Component({ 
+    templateUrl: 'profile.component.html',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, RouterModule]
+    imports: [CommonModule, ReactiveFormsModule]
 })
-export class RegisterComponent implements OnInit {
+export class ProfileComponent implements OnInit {
     form!: FormGroup;
     loading = false;
     submitted = false;
 
     constructor(
         private formBuilder: FormBuilder,
-        private route: ActivatedRoute,
-        private router: Router,
         private accountService: AccountService,
         private alertService: AlertService
-    ) {}
+    ) { }
 
     ngOnInit() {
         this.form = this.formBuilder.group({
@@ -34,31 +28,38 @@ export class RegisterComponent implements OnInit {
             firstName: ['', Validators.required],
             lastName: ['', Validators.required],
             email: ['', [Validators.required, Validators.email]],
-            password: ['', [Validators.required, Validators.minLength(6)]],
-            confirmPassword: ['', Validators.required],
-            acceptTerms: [false, Validators.requiredTrue]
+            password: ['', [Validators.minLength(6), Validators.nullValidator]],
+            confirmPassword: ['']
         }, {
             validator: mustMatch('password', 'confirmPassword')
         });
+
+        const account = this.accountService.accountValue;
+        if (account) {
+            this.form.patchValue(account);
+        }
     }
 
+    // convenience getter for easy access to form fields
     get f() { return this.form.controls; }
 
     onSubmit() {
         this.submitted = true;
+
+        // reset alerts on submit
         this.alertService.clear();
 
+        // stop here if form is invalid
         if (this.form.invalid) {
             return;
         }
 
         this.loading = true;
-        this.accountService.register(this.form.value)
+        this.accountService.update(this.accountService.accountValue!.id, this.form.value)
             .pipe(first())
             .subscribe({
                 next: () => {
-                    this.alertService.success('Registration successful, please check your email for verification instructions', { keepAfterRouteChange: true });
-                    this.router.navigate(['../login'], { relativeTo: this.route });
+                    this.alertService.success('Update successful', { keepAfterRouteChange: true });
                 },
                 error: error => {
                     this.alertService.error(error);
@@ -66,4 +67,4 @@ export class RegisterComponent implements OnInit {
                 }
             });
     }
-}
+} 

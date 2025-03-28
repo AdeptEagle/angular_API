@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-    templateUrl: 'overview.component.html',
+    templateUrl: 'layout.component.html',
     standalone: false
 })
-export class OverviewComponent {}
+export class LayoutComponent {}
