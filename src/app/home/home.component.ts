@@ -1,16 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 
 import { AccountService } from '../_services';
+import { Account } from '../_models';
 
 @Component({
     templateUrl: 'home.component.html',
     standalone: true,
-    imports: [CommonModule, RouterModule]
+    imports: [CommonModule]
 })
 export class HomeComponent {
-    account = this.accountService.accountValue;
+    account: Account | null = null;
 
-    constructor(private accountService: AccountService) {}
+    constructor(private accountService: AccountService) {
+        this.accountService.account.subscribe(x => this.account = x);
+    }
 }

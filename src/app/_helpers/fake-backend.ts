@@ -77,7 +77,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             if (!account) return unauthorized();
 
             // replace old refresh token with a new one and save
-            account.refreshTokens = account.refreshTokens.filter(x => x !== refreshToken);
+            account.refreshTokens = account.refreshTokens.filter((x: string) => x !== refreshToken);
             account.refreshTokens.push(generateRefreshToken());
             localStorage.setItem(accountsKey, JSON.stringify(accounts));
 
@@ -95,7 +95,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
             if (!account) return unauthorized();
 
             // revoke token and save
-            account.refreshTokens = account.refreshTokens.filter(x => x !== refreshToken);
+            account.refreshTokens = account.refreshTokens.filter((x: string) => x !== refreshToken);
             localStorage.setItem(accountsKey, JSON.stringify(accounts));
 
             return ok();
@@ -268,15 +268,18 @@ export class FakeBackendInterceptor implements HttpInterceptor {
 
         // Helper Functions
         function ok(body?: any) {
-            return of(new HttpResponse({ status: 200, body })).pipe(delay(500), materialize(), dematerialize());
+            return of(new HttpResponse({ status: 200, body }))
+                .pipe(delay(500), materialize(), dematerialize());
         }
 
         function error(message: string) {
-            return throwError(() => new HttpResponse({ status: 400, body: { message } }));
+            return throwError(() => ({ error: { message } }))
+                .pipe(materialize(), delay(500), dematerialize());
         }
 
         function unauthorized() {
-            return throwError(() => new HttpResponse({ status: 401, body: { message: 'Unauthorized' } }));
+            return throwError(() => ({ status: 401, error: { message: 'Unauthorized' } }))
+                .pipe(materialize(), delay(500), dematerialize());
         }
 
         function basicDetails(account: any) {
@@ -296,12 +299,12 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         function currentAccount() {
             // check if JWT token is in auth header
             const authHeader = headers.get('Authorization');
-            if (!authHeader?.startsWith('Bearer fake-jwt-token')) return;
+            if (!authHeader?.startsWith('Bearer fake-jwt-token')) return null;
 
             // check if token is expired
             const jwtToken = JSON.parse(atob(authHeader.split('.')[1]));
             const tokenExpired = Date.now() > (jwtToken.exp * 1000);
-            if (tokenExpired) return;
+            if (tokenExpired) return null;
 
             const account = accounts.find(x => x.id === jwtToken.id);
             return account;
@@ -343,7 +346,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     }
 }
 
-export let fakeBackendProvider = {
+export const fakeBackendProvider = {
     provide: HTTP_INTERCEPTORS,
     useClass: FakeBackendInterceptor,
     multi: true

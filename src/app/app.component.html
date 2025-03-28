@@ -1,14 +1,16 @@
-<div class="app-container" [ngClass]="{ 'bg-light': account }">
-    <nav class="navbar navbar-expand navbar-dark bg-dark " *ngIf="account">
+<div class="app-container">
+    <nav class="navbar navbar-expand navbar-dark bg-dark">
         <div class="navbar-nav">
-            <a routerLink="/" routerLink="active" [routerLinkActiveOption]="{exact: true}" class="nav-item nav-link">Home</a>
-            <a routerLink="/profile" routerLinkActive="active" class="nav-item nav-link">Profile</a>
-            <a *ngIf="account.role === Role.Admin" routerLink="/admin" routerLinkActive="active" class="nav-item nav-link">Admin</a>
-            <a (click)="logout()" class="nav-item nav-link">Logout</a>
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item nav-link">Home</a>
+            <a routerLink="/account/login" routerLinkActive="active" class="nav-item nav-link" *ngIf="!account">Login</a>
+            <a routerLink="/account/register" routerLinkActive="active" class="nav-item nav-link" *ngIf="!account">Register</a>
+            <a routerLink="/profile" routerLinkActive="active" class="nav-item nav-link" *ngIf="account">Profile</a>
+            <a routerLink="/admin" routerLinkActive="active" class="nav-item nav-link" *ngIf="account?.role === 'Admin'">Admin</a>
+            <button class="btn btn-link nav-item nav-link" (click)="logout()" *ngIf="account">Logout</button>
         </div>
     </nav>
-    
-    <router-outlet name="subnav"></router-outlet>
-    <alert></alert>
-    <router-outlet></router-outlet>
+    <div class="container">
+        <alert></alert>
+        <router-outlet></router-outlet>
+    </div>
 </div>

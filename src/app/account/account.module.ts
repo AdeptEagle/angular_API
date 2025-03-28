@@ -6,8 +6,7 @@ import { AccountRoutingModule } from './account-routing.module';
 import { LayoutComponent } from './layout.component';
 import { LoginComponent } from './login.component';
 import { RegisterComponent } from './register.component';
-// import { VerifyEmailComponent } from './verify-email.component';
-import { VerifyEmailComponent } from './vertify-email.component';
+import { VerifyEmailComponent } from './verify-email.component';
 import { ForgotPasswordComponent } from './forgot-password.component';
 import { ResetPasswordComponent } from './reset-password.component';
 
@@ -15,9 +14,7 @@ import { ResetPasswordComponent } from './reset-password.component';
     imports: [
         CommonModule,
         ReactiveFormsModule,
-        AccountRoutingModule
-    ],
-    declarations: [
+        AccountRoutingModule,
         LayoutComponent,
         LoginComponent,
         RegisterComponent,

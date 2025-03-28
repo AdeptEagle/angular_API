@@ -12,22 +12,22 @@ const baseUrl = `${environment.apiUrl}/accounts`;
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
-    private accountSubject: BehaviorSubject<Account>;
-    public account: Observable<Account>;
-    private refrehsTokenTimeout;
+    private accountSubject: BehaviorSubject<Account | null>;
+    public account: Observable<Account | null>;
+    private refreshTokenTimeout!: ReturnType<typeof setTimeout>;
 
     constructor(private router: Router, private http: HttpClient) {
-        this.accountSubject = new BehaviorSubject<Account>(null);
+        this.accountSubject = new BehaviorSubject<Account | null>(null);
         this.account = this.accountSubject.asObservable();
     }
 
-    public get accountValue(): Account {
+    public get accountValue(): Account | null {
         return this.accountSubject.value;
     }
 
     // Authentication Methods
-    login(email: string, password: string) {
-        return this.http.post<any>(`${baseUrl}/authenticate`, { email, password }, { withCredentials: true })
+    login(email: string, password: string): Observable<Account> {
+        return this.http.post<Account>(`${baseUrl}/authenticate`, { email, password }, { withCredentials: true })
             .pipe(
                 map(account => {
                     this.accountSubject.next(account);
@@ -37,15 +37,15 @@ export class AccountService {
             );
     }
 
-    logout() {
+    logout(): void {
         this.http.post<any>(`${baseUrl}/revoke-token`, {}, { withCredentials: true }).subscribe();
         this.stopRefreshTokenTimer();
         this.accountSubject.next(null);
         this.router.navigate(['/account/login']);
     }
 
-    refreshToken() {
-        return this.http.post<any>(`${baseUrl}/refresh-token`, {}, { withCredentials: true })
+    refreshToken(): Observable<Account> {
+        return this.http.post<Account>(`${baseUrl}/refresh-token`, {}, { withCredentials: true })
             .pipe(
                 map(account => {
                     this.accountSubject.next(account);
@@ -56,45 +56,45 @@ export class AccountService {
     }
 
     // Account Management
-    register(account: Account) {
-        return this.http.post(`${baseUrl}/register`, account);
+    register(account: Account): Observable<Account> {
+        return this.http.post<Account>(`${baseUrl}/register`, account);
     }
 
-    verifyEmail(token: string) {
-        return this.http.post(`${baseUrl}/verify-email`, { token });
+    verifyEmail(token: string): Observable<Account> {
+        return this.http.post<Account>(`${baseUrl}/verify-email`, { token });
     }
 
-    forgotPassword(email: string) {
-        return this.http.post(`${baseUrl}/forgot-password`, { email });
+    forgotPassword(email: string): Observable<void> {
+        return this.http.post<void>(`${baseUrl}/forgot-password`, { email });
     }
 
-    validateResetToken(token: string) {
-        return this.http.post(`${baseUrl}/validate-reset-token`, { token });
+    validateResetToken(token: string): Observable<Account> {
+        return this.http.post<Account>(`${baseUrl}/validate-reset-token`, { token });
     }
 
-    resetPassword(token: string, password: string, confirmPassword: string) {
-        return this.http.post(`${baseUrl}/reset-password`, { token, password, confirmPassword });
+    resetPassword(token: string, password: string, confirmPassword: string): Observable<Account> {
+        return this.http.post<Account>(`${baseUrl}/reset-password`, { token, password, confirmPassword });
     }
 
     // CRUD Operations
-    getAll() {
+    getAll(): Observable<Account[]> {
         return this.http.get<Account[]>(baseUrl);
     }
 
-    getById(id: string) {
+    getById(id: string): Observable<Account> {
         return this.http.get<Account>(`${baseUrl}/${id}`);
     }
 
-    create(params) {
-        return this.http.post(baseUrl, params);
+    create(params: Partial<Account>): Observable<Account> {
+        return this.http.post<Account>(baseUrl, params);
     }
 
-    update(id, params) {
-        return this.http.put(`${baseUrl}/${id}`, params)
+    update(id: string, params: Partial<Account>): Observable<Account> {
+        return this.http.put<Account>(`${baseUrl}/${id}`, params)
             .pipe(
-                map((account: any) => {
+                map((account: Account) => {
                     // Update the current account if it was updated
-                    if (account.id === this.accountValue.id) {
+                    if (account.id === this.accountValue?.id) {
                         account = { ...this.accountValue, ...account };
                         this.accountSubject.next(account);
                     }
@@ -103,12 +103,12 @@ export class AccountService {
             );
     }
 
-    delete(id: string) {
-        return this.http.delete(`${baseUrl}/${id}`)
+    delete(id: string): Observable<void> {
+        return this.http.delete<void>(`${baseUrl}/${id}`)
             .pipe(
                 finalize(() => {
                     // Auto logout if the logged-in account was deleted
-                    if (id === this.accountValue.id) {
+                    if (id === this.accountValue?.id) {
                         this.logout();
                     }
                 })
@@ -116,16 +116,17 @@ export class AccountService {
     }
 
     // Helper Methods
-    private startRefreshTokenTimer() {
-        const jwtToken = JSON.parse(atob(this.accountValue.jwtToken.split('.')[1]));
+    private startRefreshTokenTimer(): void {
+        const account = this.accountValue;
+        if (!account?.jwtToken) return;
 
-        // Set a timeout to refresh the token a minute before it expires
+        const jwtToken = JSON.parse(atob(account.jwtToken.split('.')[1]));
         const expires = new Date(jwtToken.exp * 1000);
         const timeout = expires.getTime() - Date.now() - (60 * 1000);
         this.refreshTokenTimeout = setTimeout(() => this.refreshToken().subscribe(), timeout);
     }
 
-    private stopRefreshTokenTimer() {
+    private stopRefreshTokenTimer(): void {
         clearTimeout(this.refreshTokenTimeout);
     }
 }

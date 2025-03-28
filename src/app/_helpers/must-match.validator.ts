@@ -1,21 +1,25 @@
-import { UntypedFormGroup } from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 // custom validator to check that two fields match
-export function MustMatch(controlName: string, matchingControlName: string) {
-    return (formGroup: UntypedFormGroup) => {
-        const control = formGroup.controls[controlName];
-        const matchingControl = formGroup.controls[matchingControlName];
+export function mustMatch(controlName: string, matchingControlName: string): ValidatorFn {
+    return (formGroup: AbstractControl): ValidationErrors | null => {
+        const control = formGroup.get(controlName);
+        const matchingControl = formGroup.get(matchingControlName);
 
-        if (matchingControl.errors && !matchingControl.errors.mustMatch) {
-            // return if another validator has already found an error on the matchingControl
-            return;
+        if (!matchingControl) {
+            return null;
         }
 
-        // set error on matchingControl if validation fails
-        if (control.value !== matchingControl.value) {
-            matchingControl.setErrors({ mustMatch: true });
+        if (matchingControl.errors && !matchingControl.errors['mustMatch']) {
+            return null;
+        }
+
+        if (control?.value !== matchingControl.value) {
+            matchingControl.setErrors({ 'mustMatch': true });
         } else {
             matchingControl.setErrors(null);
         }
-    }
+
+        return null;
+    };
 }
